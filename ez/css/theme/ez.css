@@ -326,3 +326,8 @@ body {
 {
     height: 80%;
 }
+
+.reveal .center
+{
+    text-align: center;
+}

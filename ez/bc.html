@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>eZ Publish 5 and Backwards Compatibility - eZ Summer Camp 2013</title>
+
+		<meta name="description" content="With the new eZ version 5 and the Symfony based MVC, backwards compatibility with v4 was a real challenge. In this workshop we will dive in the BC world and demistify migration process.">
+		<meta name="author" content="Jérôme Vieilledent &mdash; eZ Systems">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/ez.css" id="theme">
+        <link rel="stylesheet" href="lib/css/icomoon.css">
+
+		<!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/tomorrow-night-bright.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+                    <img src="assets/ez.png" alt="eZ" />
+                    <h1>eZ Publish 5 and <abbr title="Backwards Compatibility">BC</abbr></h1>
+                    <p>Available online at<br><a href="http://lolautruche.github.io/ez/bc/">http://lolautruche.github.io/ez/bc/</a></p>
+				</section>
+
+                <section>
+                    <h2>About me</h2>
+
+                    <ul>
+                        <li>eZ & Symfony Community member since 2007</li>
+                        <li>Part of engineering team since 2011</li>
+                        <li><em>Lead engineer eZ Symfony</em></li>
+                        <li>Webmaster of <a href="http://www.metalfrance.net">http://www.metalfrance.net</a>, powered by eZ Publish (soon to be migrated to v5)</li>
+                    </ul>
+
+                    <ul class="social">
+                        <li class="twitter"><a href="https://twitter.com/jvieilledent" data-icon="&#xe001"><span>@jvieilledent</span></a></li>
+                        <li class="gplus"><a href="https://plus.google.com/117299956214722538039/posts" data-icon="&#xe000"><span>+Jérôme Vieilledent</span></a></li>
+                        <li class="github"><a href="http://github.com/lolautruche" data-icon="&#xe003"><span>Github</span></a></li>
+                        <li class="linkedin"><a href="http://www.linkedin.com/in/jeromevieilledent" data-icon="&#xe004"><span>Linkedin</span></a></li>
+                        <li class="blog"><a href="http://www.lolart.net" data-icon="&#xe005"><span>Blog</span></a></li>
+                    </ul>
+                </section>
+
+				<section>
+                    <p>&nbsp;</p>
+                    <h2 class="center">PM Scrum story</h2>
+                    <p>&nbsp;</p>
+                    <p class="architecture">
+                        «As an eZ Publish user, I don’t want to be<br>pissed off by a new #@!$% version!»
+                    </p>
+                    <aside class="notes">
+                        eZ Publish 3 use case (2003).<br>
+                        Major change => eZ Publish lost the 2/3rd of its users, community members... Because there was no BC at all.
+                    </aside>
+				</section>
+
+                <section>
+                    <h2>The challenges</h2>
+
+                    <ul>
+                        <li class="fragment roll-in">100% data compatible (same database schema)</li>
+                        <li class="fragment roll-in">Include legacy templates into new ones</li>
+                        <li class="fragment roll-in">Routing fallback</li>
+                        <li class="fragment roll-in">Load legacy content templates with old <em>override</em> rules</li>
+                        <li class="fragment roll-in">Settings</li>
+                        <li class="fragment roll-in">Access Symfony services from legacy PHP code (e.g. modules)</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>
+                                Data compatible : The most important. <br>
+                                One can easily switch from a legacy eZ Publish 4.x instance to 5.x.
+                                However one of our most important limitation (no new storage engine possible).
+                            </li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <p class="architecture">
+                        <img src="assets/madness.png" alt="How to turn a engineer mad">
+                    </p>
+                </section>
+
+                <section>
+                    <p class="architecture" style="height: 70%;">
+                        <img src="assets/challenge_accepted.png" alt="Challenge accepted">
+                    </p>
+                    <p class="center"><strong>Challenge accepted !</strong></p>
+                    <aside class="notes">
+                        Obviously we didn’t have choice...<br>
+                        It was basically trying to make a square fit inside a smaller triangle.<br>
+                        2 completely different systems, with 2 completely different approaches.<br>
+                        <br>
+                        We got inspired of what guys from the Symfony community made when Symfony 2 came out, to make their Symfony 1 application work with it.
+                    </aside>
+                </section>
+
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Sandbox legacy code in a closure
+
+                        ```php
+                        $foo = 'bar';
+                        $legacyTemplateResult = $this->getLegacyKernel()->runCallback(
+                            function () use ( $foo )
+                            {
+                                $tpl = \eZTemplate::factory();
+                                $tpl->setVariable( 'foo', $foo );
+                                return $tpl->fetch( 'design:my/legacy_template.tpl' );
+                            }
+                        );
+                        ```
+                    </script>
+					<aside class="notes">
+                        Using runCallback, legacy code is completely isolated. We can keep high cohesion and loose coupling. <br>
+                        Of course it adds some overhead, but it’s fairly minimal from what it represents.
+					</aside>
+				</section>
+
+                <section>
+                    <h2>Dual Core architecture</h2>
+                    <p class="architecture" style="height: 80%">
+                        <img src="assets/dual_core.png" alt="Dual core architecture">
+                    </p>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Include a legacy template from Twig
+
+                        ```django
+                        {% extends "MyBundle::pagelayout.html.twig" %}
+
+                        {% block content %}
+                        <h1>{{ ez_render_field( content, 'title' ) }}</h1>
+
+                        <div class="main_content">
+                            {{ ez_render_field( content, 'body' ) }}
+                        </div>
+
+                        {# Include a "more like this" legacy template, using eZFind more_like_this() function #}
+                        {% include "design:more_like_this.tpl" with {'node_id': location.id} %}
+                        {% endblock %}
+                        ```
+                    </script>
+                </section>
+
+			</div>
+            <header>
+                <h1>eZ Publish 5 and BC</h1>
+            </header>
+            <footer><p>Jérôme Vieilledent</p><p>2013</p><p>Slide <span class="page-nr">2</span></p></footer>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: false,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+            Reveal.addEventListener('ready', function (e) {
+                var header, footer, sections;
+
+                header = document.querySelector('.reveal header');
+                footer = document.querySelector('.reveal footer');
+                sections = document.querySelectorAll('.slides section');
+
+                for (var i = 1, len = sections.length; i != len; i++) {
+                    sections[i].insertBefore(header.cloneNode(true), sections[i].firstChild);
+                    sections[i].appendChild(footer.cloneNode(true));
+                    sections[i].querySelector('.page-nr').innerHTML = i+1;
+                }
+
+            });
+		</script>
+
+	</body>
+</html>
