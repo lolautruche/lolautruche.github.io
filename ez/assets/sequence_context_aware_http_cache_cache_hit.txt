@@ -1,0 +1,17 @@
+participant Browser
+participant ReverseProxy
+participant eZ5
+
+Browser->ReverseProxy: HTTP request
+ReverseProxy-->eZ5: Ask for user hash
+eZ5-->ReverseProxy: Return user hash
+
+note right of ReverseProxy
+Response in cache with current user hash
+end note
+
+ReverseProxy->Browser: HTTP response
+
+note right of ReverseProxy
+Deliver cache, taking the\n Vary header into account
+end note
