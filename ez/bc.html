@@ -165,7 +165,7 @@
                         {% endblock %}
                         ```
 
-                        * More details on [Confluence documentation](https://confluence.ez.no/display/EZP/Legacy+code+and+features#Legacycodeandfeatures-LegacyTemplateinclusion)
+                        * More details on [Confluence](https://confluence.ez.no/display/EZP/Legacy+code+and+features#Legacycodeandfeatures-LegacyTemplateinclusion)
                     </script>
                 </section>
 
@@ -192,10 +192,129 @@ $mySearchResults = $this->getLegacyKernel()->runCallback(
                 'class_id'  => $contentTypeIdentifiers
             )
         );
-    }
+    },
+    false
 );
-</code>
-                    </pre>
+                    </code></pre>
+                    <aside class="notes">
+                        eZ Find has not been ported yet (and probably won't be ported as is).<br>
+                        Will probably be integrated directly in the core.<br>
+                        BTW, a project of adapting eZ Find is coming as a community effort, using Solarium. Wanna join?
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Call Symfony services from legacy code</h2>
+                    <pre>
+<code class="php">
+// From anywhere in legacy code
+/** @var \Symfony\Component\DependencyInjection\ContainerInterface $serviceContainer */
+$serviceContainer = ezpKernel::instance()->getServiceContainer();
+$repository = $serviceContainer->get( 'ezpublish.api.repository' );
+$rootLocation = $repository->getLocationService()->loadLocation( 2 );
+</code></pre>
+                    <ul>
+                        <li class="fragment roll-in">You can call and use <strong>every declared public service</strong></li>
+                        <li class="fragment roll-in">
+                            As controllers can be defined as services, you can use controllers for your modules!<br>
+                            (particularly useful for <em>module migration</em>)
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>If I migrate to eZ 5, will my site work?</h2>
+                    <ul>
+                        <li class="fragment roll-in">Short answer: <strong class="fragment highlight-red">YES!!!</strong>
+                            <ul class="fragment roll-in">
+                                <li>Define new Twig templates, they will used directly</li>
+                                <li>If no Twig template yet, <strong class="fragment highlight-red">all your old content templates<br>will be taken into account as fallback</strong></li>
+                                <li>All your modules will continue to work (<em>routing fallback</em>)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Hands on: The invisible BC
+
+                        * Get the base legacy extension
+
+                        ```bash
+                        cd ezpublish_legacy/extension
+                        git clone git://github.com/lolautruche/ezsc-legacy
+                        git checkout -b work v0.1
+                        ```
+
+                        * Activate it in `settings/override/site.ini.append.php`
+                        * Activate *Template debug* in admin
+                        * Generate a SummerCamp\BCBundle
+
+                        ```bash
+                        # First go back to main eZ 5 directory
+                        php ezpublish/console generate:bundle
+                        ```
+
+                        * Uncover the BC magic!
+                    </script>
+                    <aside class="notes">
+                        <ul>
+                            <li>Take an existing article: <code>/Getting-Started/Selected-Features/Deliver</code></li>
+                            <li>Look at source code and watch the loaded legacy templates</li>
+                            <li>Create a Twig template for the article (locationId #70) with rule</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Hands on: Include a legacy template
+
+                        * Start from `old_thing.tpl` template from `ezsc-legacy` extension
+                        * Try to include it from your Twig template, passing on different variable values
+
+                        ```django
+                        {% include "design:old_thing.tpl" with {"variableForLegacy": "Hello Summer camp!", "name": "Jérôme"}
+                        ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Hands on: Use legacy PHP code
+
+                        * Create a `legacyAction()` method in your bundle's `DefaultController`
+                        * Create the route leading to it
+                        * Try to retrieve `[SiteSettings].SiteName` from `site.ini`, using the legacy kernel
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Hands on: Use a Symfony controller to render a legacy module
+
+                        * Create a *controller as a service* `my.admin.controller`
+
+                        ```yml
+                        parameters:
+                            my.admin.controller.class: Acme\TestBundle\Controller\AdminController
+
+                        services:
+                            my.admin.controller:
+                                class: %my.admin.controller.class%
+                                calls:
+                                    - [setContainer, [@service_container]]
+                        ```
+
+                        * Edit `ezcadmin/sftest` module view to use the controller for rendering
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## That's all folks!
+                    </script>
                 </section>
 
 			</div>
