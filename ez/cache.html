@@ -4,9 +4,9 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>Using the eZ Publish 5 Public API - eZ Summer Camp 2013</title>
+		<title>eZ Publish 5 Cache unleashed - eZ Summer Camp 2013</title>
 
-		<meta name="description" content="With the new eZ version 5 and the Symfony based MVC knowing how to use Public API starts to be very important. In the workshop we will practice several common usage examples.">
+		<meta name="description" content="All you wanted to know about cache in eZ Publish 5">
 		<meta name="author" content="Damien Pobel &mdash; eZ Systems">
 
 		<meta name="apple-mobile-web-app-capable" content="yes" />
@@ -36,29 +36,213 @@
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
-				<section>
+                <section>
                     <img src="assets/ez.png" alt="eZ" />
-                    <h1>Presentation big title</h1>
-				</section>
+                    <h1>eZ Publish 5 cache unleashed</h1>
+                    <p>Available online at<br><a href="http://lolautruche.github.io/ez/cache">http://lolautruche.github.io/ez/cache</a></p>
+                </section>
 
-				<section>
-                    <h2>Slide 2</h2>
-					<aside class="notes">
-						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-					</aside>
-				</section>
+                <section>
+                    <h2>About me</h2>
 
-				<section>
-                    <h2>Slide 3</h2>
-					<aside class="notes">
-						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-					</aside>
-				</section>
+                    <ul>
+                        <li>eZ & Symfony Community member since 2007</li>
+                        <li>Part of engineering team since 2011</li>
+                        <li><em>Lead engineer eZ Symfony</em></li>
+                        <li>Webmaster of <a href="http://www.metalfrance.net">http://www.metalfrance.net</a>, powered by eZ Publish (soon to be migrated to v5)</li>
+                    </ul>
+
+                    <ul class="social">
+                        <li class="twitter"><a href="https://twitter.com/jvieilledent" data-icon="&#xe001"><span>@jvieilledent</span></a></li>
+                        <li class="gplus"><a href="https://plus.google.com/117299956214722538039/posts" data-icon="&#xe000"><span>+Jérôme Vieilledent</span></a></li>
+                        <li class="github"><a href="http://github.com/lolautruche" data-icon="&#xe003"><span>Github</span></a></li>
+                        <li class="linkedin"><a href="http://www.linkedin.com/in/jeromevieilledent" data-icon="&#xe004"><span>Linkedin</span></a></li>
+                        <li class="blog"><a href="http://www.lolart.net" data-icon="&#xe005"><span>Blog</span></a></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Levels of cache</h2>
+                    <ul>
+                        <li class="fragment roll-in">HTTP cache (aka <em>gateway cache</em>)</li>
+                        <li class="fragment roll-in">Twig compiled templates</li>
+                        <li class="fragment roll-in">Persistence cache</li>
+                        <li class="fragment roll-in">Routing cache</li>
+                        <li class="fragment roll-in">Service container</li>
+                        <li class="fragment roll-in">Dumped classes</li>
+                        <li class="fragment roll-in">Translations</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Is it Symfony or eZ specific?</h2>
+                    <div class="fragment roll-in">
+                        <h3>Symfony</h3>
+                        <ul>
+                            <li>Base HTTP cache (reverse proxy written in PHP)</li>
+                            <li>Twig compiled templates</li>
+                            <li>Routing, service container, translations...</li>
+                        </ul>
+                    </div>
+                    <div class="fragment roll-in">
+                        <h3>eZ Publish</h3>
+                        <ul>
+                            <li>Persistence cache</li>
+                            <li>Location aware HTTP cache</li>
+                            <li>Context aware HTTP cache</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## HTTP cache
+
+                        * Present in HTTP spec since day 1
+                        * Well understood by browsers and reverse proxies (e.g. *Varnish*)
+                        * Has 2 models: Expiration and Validation
+                        * Symfony is an HTTP framework for PHP!
+                    </script>
+                    <aside class="notes">
+                        <ul>
+                            <li>The beauty of Symfony is make your application no run on Symfony</li>
+                        </ul>
+                    </aside>
+                </section>
+                
+                <section>
+                    <p class="architecture"><img src="assets/sequence_http_cache1.png" alt="HTTP cache sequence, cache miss"></p>
+                </section>
+
+                <section>
+                    <p class="architecture"><img src="assets/sequence_http_cache2.png" alt="HTTP cache sequence, cache hit"></p>
+                </section>
+
+                <section>
+                    <div class="fragment roll-in">
+                        <h3>Advantages</h3>
+                        <ul>
+                            <li>Very fast</li>
+                            <li>Implemented in most browsers and reverse proxies</li>
+                        </ul>
+                    </div>
+                    <div class="fragment roll-in">
+                        <h3>Drawbacks</h3>
+                        <ul>
+                            <li>
+                                Very static<br>
+                                <ul>
+                                    <li>Caches the whole page</li>
+                                    <li>Forget user personal information</li>
+                                </ul>
+                            </li>
+                            <li>Cache TTL may seem arbitrary</li>
+                        </ul>
+                    </div>
+                    <p>&nbsp;</p>
+                    <p class="fragment roll-in center">
+                        <a href="http://tomayko.com/writings/things-caches-do">http://tomayko.com/writings/things-caches-do</a><br>
+                        <a href="http://symfony.com/doc/current/book/http_cache.html">http://symfony.com/doc/current/book/http_cache.html</a>
+                    </p>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## ESI to the rescue!
+
+                        ```html
+                        <!DOCTYPE html>
+                            <html>
+                                <body>
+                                    <!-- ... some content -->
+
+                                    <!-- Embed the content of another page here -->
+                                    <esi:include src="http://..." />
+
+                                    <!-- ... more content -->
+                                </body>
+                        </html>
+                        ```
+
+                        * Originally an Akamaï spec
+                        * Supported in Symfony
+                    </script>
+                    <aside class="notes">
+                        Symfony also supports <em>hinclude</em>
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Location aware cache</h2>
+                    <ul>
+                        <li>Makes it possible to <em>bind</em> a (cached) HTTP response to a Location</li>
+                        <li>When cache for the Location is cleared, all bound HTTP responses are cleared as well</li>
+                    </ul>
+                    <pre><code class="php">
+use Symfony\Component\HttpFoundation\Response;
+
+$response = new Response();
+$response->headers->set( 'X-Location-Id', $myLocationId );
+                    </code> </pre>
+                </section>
+
+                <section>
+                    <h2>Context-aware HTTP cache</h2>
+                    <ul>
+                        <li>HTTP cache is not meant to be context (e.g. user info) aware</li>
+                        <li>In eZ Publish 4 view cache was generated against user roles, policies and limitations</li>
+                        <li>Context-aware HTTP cache mimics this behavior <br>by making the response vary on the <strong>user hash</strong></li>
+                        <li>Much more performant</li>
+                        <li><strong>New in 5.2 / 2013.07</strong></li>
+                    </ul>
+                    <pre><code class="php">
+use Symfony\Component\HttpFoundation\Response;
+
+$response = new Response();
+$response->setVary( 'X-User-Hash' );
+                    </code> </pre>
+                </section>
+
+                <section>
+                    <p class="architecture"><img src="assets/sequence_context_aware_http_cache_no_cache.png" alt="Context aware HTTP cache, miss"></p>
+                </section>
+
+                <section>
+                    <p class="architecture"><img src="assets/sequence_context_aware_http_cache_cache_hit.png" alt="Context aware HTTP cache, hit"></p>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Persistence cache
+
+                        * Low level cache for the content Repository
+                        * Cross-requests
+                        * Use [Stash library](https://github.com/tedivm/Stash)
+                        * Various handlers (FileSystem, Memcached, Redis...)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Let's dive into Symfony caches!
+
+                        * Service container
+                        * Twig
+                        * Routing
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## That's all folks!
+                    </script>
+                </section>
 			</div>
+
             <header>
-            <h1>Presentation big title</h1>
+            <h1>eZ Publish 5 Cache unleashed</h1>
             </header>
-            <footer><p>Damien Pobel</p><p>2013</p><p>Slide <span class="page-nr">2</span></p></footer>
+            <footer><p>Jérôme Vieilledent</p><p>2013</p><p>Slide <span class="page-nr">2</span></p></footer>
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
