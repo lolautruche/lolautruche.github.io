@@ -164,7 +164,38 @@
                         {% include "design:more_like_this.tpl" with {'node_id': location.id} %}
                         {% endblock %}
                         ```
+
+                        * More details on [Confluence documentation](https://confluence.ez.no/display/EZP/Legacy+code+and+features#Legacycodeandfeatures-LegacyTemplateinclusion)
                     </script>
+                </section>
+
+                <section>
+                    <h2>Concrete example: Using eZ Find</h2>
+                    <pre style="font-size: 0.5em;"><code data-trim class="php" style="max-height: 500px;">
+$searchPhrase = 'My search phrase';
+$sort = array(
+    'score'     => 'desc',
+    'published' => 'desc'
+);
+$contentTypeIdentifiers = array( 'folder', 'article' );
+$mySearchResults = $this->getLegacyKernel()->runCallback(
+    function () use ( $searchPhrase, $sort, $contentTypeIdentifiers )
+    {
+        // eZFunctionHandler::execute is the equivalent for a legacy template fetch function
+        // The following is the same than fetch( 'ezfind', 'search', hash(...) )
+        return \eZFunctionHandler::execute(
+            'ezfind',
+            'search',
+            array(
+                'query'     => $searchPhrase,
+                'sort_by'   => $sort,
+                'class_id'  => $contentTypeIdentifiers
+            )
+        );
+    }
+);
+</code>
+                    </pre>
                 </section>
 
 			</div>
