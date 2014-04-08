@@ -83,6 +83,7 @@ namespace Acme\TestBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
+use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Yaml\Yaml;
 
@@ -90,11 +91,12 @@ class AcmeTestExtension extends Extension implements PrependExtensionInterface
 {
     public function prepend( ContainerBuilder $container )
     {
-        $config = Yaml::parse(
-            file_get_contents(__DIR__ . '/../Resources/config/assetic.yml')
-        );
+        $file = __DIR__ . '/../Resources/config/assetic.yml';
+        $config = Yaml::parse(file_get_contents($file));
         // On ajoute explicitement la configuration pour le namespace "assetic"
         $container->prependExtensionConfig( 'assetic', $config );
+        // On ajoute la ressource pour tracker les modifications en debug
+        $container->addResource(new FileResource($file));
     }
 }
 ```
@@ -113,8 +115,6 @@ bundles: [AcmeTestBundle]
 
 ## Inconvénients <!-- .element: class="fragment" -->
 * Implicite, donne sentiment de "magie" <!-- .element: class="fragment" -->
-* Pas de vidage automatique du cache quand la configuration est modifiée (debug) <!-- .element: class="fragment" -->
-
 
 
 
