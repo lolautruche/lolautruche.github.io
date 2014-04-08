@@ -3,6 +3,8 @@
 ### Les bonnes pratiques
 Par [Jérôme Vieilledent](https://github.com/lolautruche) / [@jvieilledent](http://twitter.com/jvieilledent)
 
+http://share.ez.no/blogs/core-development-team
+
 http://lolautruche.github.io/ez/etendre-symfony.html
 
 
@@ -444,3 +446,5 @@ Note:
 
 # Fin
 ## ?  <!-- .element: class="fragment" -->
+
+http://share.ez.no/blogs/core-development-team
