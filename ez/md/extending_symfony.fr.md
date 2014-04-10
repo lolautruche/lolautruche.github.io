@@ -229,6 +229,8 @@ services:
     acme.my_subscriber:
         class: %acme.my_subscriber.class%
         arguments: [@logger]
+        tags:
+            - { name: kernel.event_subscriber }
 ```
 
 ```php
