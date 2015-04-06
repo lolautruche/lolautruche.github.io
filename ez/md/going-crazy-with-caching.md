@@ -54,6 +54,10 @@ Vary: Accept
 ```
 
 
+
+# Varnish
+
+
 ## The Varnish state engine
 ![VCL](assets/varnish-vcl.png)
 
@@ -78,13 +82,46 @@ Vary: Accept
 
 
 
+# User Context
+
+![VCL](assets/varnish-stage.png)
+
+
 ## TODO: user context slides
 
+User Context: Work with the use case, explain how this started in ezPublish.
+Mention the Symfony HttpCache support for user context
+
+
+## Cleaning cookies
+
+```
+sub vcl_recv {
+  set req.http.cookie = ";" + req.http.cookie;
+  set req.http.cookie = regsuball(req.http.cookie, "; +", ";");
+  set req.http.cookie = regsuball(req.http.cookie, ";(PHPSESSID)=","; \1=");
+  set req.http.cookie = regsuball(req.http.cookie, ";[^ ][^;]*", "");
+  set req.http.cookie = regsuball(req.http.cookie, "^[; ]+|[; ]+$", "");
+}
+```
+
+
+TODO
+Caching the context lookup vs doing a paywall - maybe also mention mod-sendfile while we are at it...
+
+
+## Combining with Vary header
+
+* Different caching rules
+    * No caching
+    * Vary: user context
+    * Vary: Cookie
+* ESI for different rules for specific fragments
 
 
 ## Edge Side Includes
 
-Like server side include, but on Varnish:
+*Like server side include, but on Varnish*
 
 * Content embeds URLs to parts of the content
 * Varnish fetches and caches elements separatly
@@ -92,3 +129,16 @@ Like server side include, but on Varnish:
 * E.g. only some elements vary on cookie, different TTL, ...
 * Symfony has built-in support
 
+
+TODO screenshot ezpublish DemoBundle and highlight areas of the page
+
+
+TODO FOSHttpCacheBundle header configuration examples...
+
+
+
+# Thanks!
+
+## @dbu
+
+## @jvieilledent
