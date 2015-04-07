@@ -84,13 +84,63 @@ Vary: Accept
 
 # User Context
 
+(or how to cache for authenticated users)
+
+
+## Once upon a time...
+* Feature existing in eZ Publish since version 3: "View cache"
+* Not using HTTP spec, but file based application cache
+* Generated against user roles, policies and limitations
+
+
+## Some HTTP please?
+Has long been considered **impossible** :-(
+
+> They did not know it was impossible,<br>so they did it.<br> <!-- .element: class="fragment" -->
+> <br> Mark Twain
+
+
+## Introducing the User context hash
+* Transparent (reverse proxy does the job)
+* Computed for every user (footprint)
+* Generation can be extended
+  * eZ adds roles, policies and limitations
+  * Add your custom rules
+* Cached by session ID, using HTTP cache of course!
+
+
+![http_user_context_1](assets/http_user_context_1.png)
+
+
+![http_user_context_1](assets/http_user_context_2.png)
+
+
+![http_user_context_1](assets/http_user_context_3.png)
+
+
+## ...And they lived happily ever after
+* Feature available in [FOSHttpCache library](http://foshttpcache.readthedocs.org/en/latest/)
+* Integrates seamlessly with Symfony with [FOSHttpCacheBundle](http://foshttpcachebundle.readthedocs.org/en/latest/)
+* Works with Varnish 3 & 4
+* ...And Symfony reverse proxy! <!-- .element: class="fragment" -->
+
+
+
+# Let's play!
+
 ![VCL](assets/varnish-stage.png)
 
 
-## TODO: user context slides
+# Use-case: Content subscription
 
-User Context: Work with the use case, explain how this started in ezPublish.
-Mention the Symfony HttpCache support for user context
+
+## Anonymous users may only see an abstract
+![article](assets/article_anonymous.png)
+
+
+## Granted users can read the full article
+![article](assets/article_subscriber.png)
+
 
 
 ## Cleaning cookies
@@ -128,9 +178,6 @@ Caching the context lookup vs doing a paywall - maybe also mention mod-sendfile 
 * Individual caching rules per fragment
 * E.g. only some elements vary on cookie, different TTL, ...
 * Symfony has built-in support
-
-
-TODO screenshot ezpublish DemoBundle and highlight areas of the page
 
 
 TODO FOSHttpCacheBundle header configuration examples...
