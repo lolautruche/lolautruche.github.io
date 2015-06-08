@@ -183,3 +183,4 @@ Has long been considered **impossible** :-(
 ## @jvieilledent
 
 #### http://lolautruche.github.io/ez/going-crazy-with-caching.html
+#### Further slides on [ezsystems.github.io/slides](http://ezsystems.github.io/slides/)
