@@ -118,10 +118,11 @@ php ezpublish/console generate:bundle
 
 ## Settings for content view fallback
 ```yaml
-# By default in ezpublish/config/parameters.yml
-parameters:
-    # Default layout for content view legacy fallback (i.e. no template yet configured in Platform stack)
-    ezpublish_legacy.<my_siteaccess_group>.view_default_layout: "MyBundle::pagelayout.html.twig"
+ez_publish_legacy:
+    system:
+        my_siteaccess:
+            templating:
+                view_layout: AcmeDemoBundle::my_layout.html.twig
 ```
 
 https://doc.ez.no/display/EZP/Legacy+template+fallback
@@ -130,13 +131,16 @@ https://doc.ez.no/display/EZP/Legacy+template+fallback
 
 ## Use the same layout base for legacy modules
 ```yaml
-parameters:
-    # Default layout for legacy modules (e.g. content/search)
-    ezpublish_legacy.<my_siteaccess_group>.module_default_layout: "MyBundle::pagelayout_legacy.html.twig"
+ez_publish_legacy:
+    system:
+        my_siteaccess:
+            templating:
+                view_layout: AcmeDemoBundle::layout.html.twig
+                module_layout: AcmeDemoBundle::layout_legacy.html.twig
 ```
 
 ```jinja
-{% extends "MyBundle::pagelayout.html.twig" %}
+{% extends "AcmeDemoBundle::pagelayout.html.twig" %}
 
 {% block content %}
     {# module_result variable is received from the legacy controller. #}
