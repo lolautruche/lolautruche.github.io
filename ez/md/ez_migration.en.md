@@ -155,9 +155,9 @@ https://doc.ez.no/display/EZP/Legacy+template+fallback
 
 ## Include legacy templates
 ```jinja
-{% include "design:foo/my_legacy_template.tpl" %}
+{{ include("design:foo/my_legacy_template.tpl") }}
 
-{% include "file:/path/to/my_legacy_template.tpl" %}
+{{ include("file:/path/to/my_legacy_template.tpl") }}
 ```
 
 ---
