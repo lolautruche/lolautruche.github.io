@@ -36,7 +36,7 @@ http://lolautruche.github.io/ez/ez-migration.html
 0. Don't touch your content templates <!-- .element: class="fragment" -->
 0. Let the BC magic occur <!-- .element: class="fragment" -->
 
-![Backwards compatibility motto](../assets/bc_motto.jpg) <!-- .element: class="fragment" -->
+![Backwards compatibility motto](/ez/assets/bc_motto.jpg) <!-- .element: class="fragment" -->
 
 ---
 
@@ -160,7 +160,7 @@ https://doc.ez.no/display/EZP/Legacy+template+fallback
 
 # Metal France
 
-![Metal France logo](../assets/metalfrance_logo.png)
+![Metal France logo](/ez/assets/metalfrance_logo.png)
 
 http://www.metalfrance.net
 
