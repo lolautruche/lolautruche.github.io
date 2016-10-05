@@ -415,4 +415,4 @@ Don't forget to run `assets:install`!
 
 ---
 
-![That's all folks!](/assets/thats-all-folks.jpg)
+![That's all folks!](/ez/assets/thats-all-folks.jpg)
